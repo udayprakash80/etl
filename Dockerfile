@@ -1,10 +1,9 @@
-FROM maven:3.8.3-openjdk-17 AS build
+FROM maven:3.8.5-openjdk-17 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17.0.2-jdk-slim
-COPY --from=build /target/etl_0*-SNAPSHOT.jar etl.jar
-RUN ls -ltr
+FROM openjdk:17.0.1-jdk-slim
+COPY --from=build /target/etl-0*-SNAPSHOT.jar etl.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "etl.jar"]
+ENTRYPOINT ["java","-jar","etl.jar"]
 
