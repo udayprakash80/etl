@@ -22,5 +22,6 @@ public class Answer implements Serializable {
     @JsonIgnore
     private Question question;
     private boolean correct;
+    private boolean option;
 
 }
