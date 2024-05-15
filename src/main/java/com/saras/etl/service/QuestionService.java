@@ -38,7 +38,7 @@ public class QuestionService {
         List<Question> updatedQuestions = new ArrayList<>();
         for(Question question: questions){
             Question existingQuestion = questionRepository.findByLabel(question.getLabel());
-            if(existingQuestion.getId() > 0){
+            if(existingQuestion.getId() != null && existingQuestion.getId() > 0){
                 question.setId(existingQuestion.getId());
             }
             updatedQuestions.add(questionRepository.save(question));
