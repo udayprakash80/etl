@@ -9,7 +9,6 @@ datasource db {
 
 model question {
   id            Int   @id @default(autoincrement())
-  sequence      Int
   label         String   @unique
   type          String
   level         String

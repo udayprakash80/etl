@@ -6,8 +6,10 @@ import com.saras.etl.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -22,12 +24,26 @@ public class QuestionService {
         return questionRepository.findById(id).orElse(null);
     }
 
+    public List<Question> getQuestionsByLanguage(String language){
+        return questionRepository.findByLanguage(language);
+    }
     public Question saveQuestion(Question question){
         return questionRepository.save(question);
     }
 
-    public List<Question> saveQuestions(List<Question> questions){
+    public List<Question> saveAllQuestions(List<Question> questions){
         return questionRepository.saveAll(questions);
+    }
+    public List<Question> updateAllQuestions(List<Question> questions){
+        List<Question> updatedQuestions = new ArrayList<>();
+        for(Question question: questions){
+            Question existingQuestion = questionRepository.findByLabel(question.getLabel());
+            if(existingQuestion.getId() > 0){
+                question.setId(existingQuestion.getId());
+            }
+            updatedQuestions.add(questionRepository.save(question));
+        }
+        return questionRepository.saveAll(updatedQuestions);
     }
 
     public Question updateQuestion(Question updateQuestion){

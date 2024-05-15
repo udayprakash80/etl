@@ -23,13 +23,24 @@ public class QuestionController {
         return questionService.getQuestionById(id);
     }
 
+    @GetMapping("/search")
+    public List<Question> getAllQuestionByLanguage(@RequestParam String language){
+        return questionService.getQuestionsByLanguage(language);
+    }
+
     @PostMapping
     public Question saveQuestion(@RequestBody Question question){
         return questionService.saveQuestion(question);
     }
-    @PostMapping("/list")
-    public List<Question> saveQuestions(@RequestBody List<Question> questions){
-        return questionService.saveQuestions(questions);
+
+    @PostMapping("/saveAll")
+    public List<Question> saveAllQuestions(@RequestBody List<Question> questions){
+        return questionService.saveAllQuestions(questions);
+    }
+
+    @PostMapping("/updateAll")
+    public List<Question> updateAllQuestions(@RequestBody List<Question> questions){
+        return questionService.updateAllQuestions(questions);
     }
 
     @PutMapping
