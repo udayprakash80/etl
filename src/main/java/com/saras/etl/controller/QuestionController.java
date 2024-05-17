@@ -1,6 +1,7 @@
 package com.saras.etl.controller;
 
 import com.saras.etl.entity.Question;
+import com.saras.etl.model.AssessmentResult;
 import com.saras.etl.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,11 @@ public class QuestionController {
     @DeleteMapping
     public void deleteQuestion(@PathVariable Long id){
         questionService.deleteQuestion(id);
+    }
+
+    @PostMapping("/result")
+    public AssessmentResult getResult(@RequestBody List<Question> questions){
+        return questionService.getResult(questions);
     }
 
 }

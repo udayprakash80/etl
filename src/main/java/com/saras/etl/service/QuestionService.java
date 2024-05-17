@@ -2,20 +2,28 @@ package com.saras.etl.service;
 
 import com.saras.etl.entity.Answer;
 import com.saras.etl.entity.Question;
+import com.saras.etl.model.AssessmentEnum;
+import com.saras.etl.model.AssessmentResult;
+import com.saras.etl.repository.AnswerRepository;
 import com.saras.etl.repository.QuestionRepository;
+import com.saras.etl.utility.AssessmentMath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class QuestionService {
 
     @Autowired
     QuestionRepository questionRepository;
+
+    @Autowired
+    AnswerRepository answerRepository;
+
     public List<Question> getAllQuestion(){
         return questionRepository.findAll();
     }
@@ -68,4 +76,56 @@ public class QuestionService {
     public void deleteQuestion(Long id){
         questionRepository.deleteById(id);
     }
+
+    public AssessmentResult getResult(List<Question> questions){
+        AssessmentResult assessmentResult = new AssessmentResult();
+        AtomicInteger incorrect = new AtomicInteger(0);
+        AtomicInteger skipped = new AtomicInteger(0);
+        if(questions == null || questions.isEmpty()){
+            return assessmentResult;
+        }
+        String language = questions.get(0).getLanguage();
+        if(language != null){
+            List<Question> existingQuestions = questionRepository.findByLanguage(language);
+            questions.forEach( question -> {
+                existingQuestions.stream().filter(eq -> eq.getId().equals(question.getId()))
+                        .findFirst()
+                        .ifPresent(existingQuestion -> {
+                            if(question.getAnswers().size() == existingQuestion.getAnswers().size()){
+                                long countFalse = question.getAnswers().stream().filter(answer -> !answer.isOption()).count();
+                                if(countFalse == question.getAnswers().size()){
+                                    skipped.incrementAndGet();
+                                } else{
+                                    boolean isIncorrect = question.getAnswers().stream()
+                                            .anyMatch(userAnswer -> existingQuestion.getAnswers().stream()
+                                                    .anyMatch(existingAnswer -> userAnswer.getId().equals(existingAnswer.getId())
+                                                            && userAnswer.isOption() != existingAnswer.isCorrect()));
+                                    if(isIncorrect){
+                                        incorrect.incrementAndGet();
+                                    }
+                                }
+                            }
+                        });
+
+            });
+        }
+        assessmentResult.setIncorrect(incorrect.get());
+        assessmentResult.setSkipped(skipped.get());
+        assessmentResult.setCorrect(questions.size() - incorrect.get() - skipped.get());
+        assessmentResult.setTotal(questions.size());
+        assessmentResult.setPercentage(AssessmentMath.calculatePercentage(assessmentResult.getCorrect(), assessmentResult.getTotal()));
+        if(assessmentResult.getPercentage() >= 90){
+         assessmentResult.setFeedback("EXCELLENT");
+         assessmentResult.setRemark("Excellent job! You demonstrated a strong understanding of the material. Keep up the good work.");
+        } else if( assessmentResult.getPercentage() >= 80 && assessmentResult.getPercentage() < 90){
+         assessmentResult.setFeedback("Good");
+         assessmentResult.setRemark("Great job! You are almost there, Try again");
+        } else {
+         assessmentResult.setFeedback("Poor");
+         assessmentResult.setRemark("Ok! You need to study more,  Try again.");
+        }
+        return assessmentResult;
+    }
+
+
 }
