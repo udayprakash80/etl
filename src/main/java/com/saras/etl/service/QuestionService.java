@@ -2,7 +2,6 @@ package com.saras.etl.service;
 
 import com.saras.etl.entity.Answer;
 import com.saras.etl.entity.Question;
-import com.saras.etl.model.AssessmentEnum;
 import com.saras.etl.model.AssessmentResult;
 import com.saras.etl.repository.AnswerRepository;
 import com.saras.etl.repository.QuestionRepository;
@@ -95,6 +94,7 @@ public class QuestionService {
                                 long countFalse = question.getAnswers().stream().filter(answer -> !answer.isOption()).count();
                                 if(countFalse == question.getAnswers().size()){
                                     skipped.incrementAndGet();
+                                    question.setStatus("Skipped");
                                 } else{
                                     boolean isIncorrect = question.getAnswers().stream()
                                             .anyMatch(userAnswer -> existingQuestion.getAnswers().stream()
@@ -102,11 +102,11 @@ public class QuestionService {
                                                             && userAnswer.isOption() != existingAnswer.isCorrect()));
                                     if(isIncorrect){
                                         incorrect.incrementAndGet();
+                                        question.setStatus("Wrong");
                                     }
                                 }
                             }
                         });
-
             });
         }
         assessmentResult.setIncorrect(incorrect.get());
@@ -124,6 +124,7 @@ public class QuestionService {
          assessmentResult.setFeedback("Poor");
          assessmentResult.setRemark("Ok! You need to study more,  Try again.");
         }
+        assessmentResult.setQuestions(questions);
         return assessmentResult;
     }
 

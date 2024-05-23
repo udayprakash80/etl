@@ -21,8 +21,10 @@ public class Answer implements Serializable {
     @JoinColumn(name = "question_id", nullable = false)
     @JsonIgnore
     private Question question;
-//    @JsonIgnore
+    @JsonIgnore
     private boolean correct;
     private boolean option;
+    @Transient
+    private boolean correctAnswer;
 
 }

@@ -22,6 +22,9 @@ public class Question implements Serializable {
     private String type;
     private String level;
     private String language;
+    @Transient
+    private String status;
+
 
     public void setAnswers(List<Answer> answers){
         this.answers = answers;

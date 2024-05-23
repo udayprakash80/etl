@@ -1,8 +1,11 @@
 package com.saras.etl.model;
 
+import com.saras.etl.entity.Question;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,4 +18,5 @@ public class AssessmentResult {
     private double percentage;
     private String feedback;
     private String remark;
+    private List<Question> questions;
 }
