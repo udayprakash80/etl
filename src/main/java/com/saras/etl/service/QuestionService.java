@@ -92,6 +92,11 @@ public class QuestionService {
                         .ifPresent(existingQuestion -> {
                             if(question.getAnswers().size() == existingQuestion.getAnswers().size()){
                                 long countFalse = question.getAnswers().stream().filter(answer -> !answer.isOption()).count();
+                                question.getAnswers().forEach(answer ->
+                                        existingQuestion.getAnswers().stream()
+                                                .filter(existingAnswer -> existingAnswer.getId().equals(answer.getId()))
+                                                .findFirst()
+                                                .ifPresent(existingAnswer -> answer.setCorrectAnswer(existingAnswer.isCorrect())));
                                 if(countFalse == question.getAnswers().size()){
                                     skipped.incrementAndGet();
                                     question.setStatus("Skipped");
