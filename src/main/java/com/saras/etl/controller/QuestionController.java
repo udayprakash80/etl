@@ -2,7 +2,10 @@ package com.saras.etl.controller;
 
 import com.saras.etl.entity.Question;
 import com.saras.etl.model.AssessmentResult;
+import com.saras.etl.security.SecurityConfig;
 import com.saras.etl.service.QuestionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/questions")
 public class QuestionController {
+    public static final Logger LOG = LoggerFactory.getLogger(QuestionController.class);
     @Autowired
     private QuestionService questionService;
 
@@ -56,6 +60,7 @@ public class QuestionController {
 
     @PostMapping("/result")
     public AssessmentResult getResult(@RequestBody List<Question> questions){
+        LOG.debug("Result submitted");
         return questionService.getResult(questions);
     }
 
