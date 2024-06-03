@@ -3,6 +3,9 @@ package com.saras.etl.service;
 import com.saras.etl.entity.Userinfo;
 import com.saras.etl.model.UserInfoDetails;
 import com.saras.etl.repository.UserInfoRepository;
+import com.saras.etl.security.SecurityConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +18,7 @@ import java.util.Optional;
 @Service
 public class UserInfoService implements UserDetailsService {
 
+    public static final Logger LOG = LoggerFactory.getLogger(UserInfoService.class);
     @Autowired
     private UserInfoRepository repository;
 
@@ -41,10 +45,15 @@ public class UserInfoService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + email));
     }
 
-    public String addUser(Userinfo user) {
+    public Userinfo addUser(Userinfo user) {
+        Userinfo userinfo = null;
         user.setPassword(encoder.encode(user.getPassword()));
-        repository.save(user);
-        return "User Added Successfully";
+        try{
+            userinfo = repository.save(user);
+        }catch (Exception e){
+            LOG.error("Error while creating user" + e.getLocalizedMessage());
+        }
+        return userinfo;
     }
 
 

@@ -2,6 +2,7 @@ package com.saras.etl.controller;
 
 import com.saras.etl.entity.Userinfo;
 import com.saras.etl.model.AuthRequest;
+import com.saras.etl.model.AuthResponse;
 import com.saras.etl.security.JwtService;
 import com.saras.etl.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,36 @@ public class UserController {
         return "Welcome this endpoint is not secure";
     }
 
-    @PostMapping("/addNewUser")
-    public String addNewUser(@RequestBody Userinfo user) {
-        return service.addUser(user);
+    @PostMapping("/signup")
+    public AuthResponse addNewUser(@RequestBody Userinfo user) {
+        AuthResponse authResponse = new AuthResponse();
+        Userinfo userinfo = service.addUser(user);
+        if(userinfo != null){
+            authResponse.setName(userinfo.getName());
+            authResponse.setEmail(userinfo.getEmail());
+            authResponse.setToken(jwtService.generateToken(userinfo.getEmail()));
+            authResponse.setMessage("User Added Successfully");
+        } else {
+            authResponse.setMessage("Error While creating user");
+        }
+        return authResponse;
+    }
+
+    @PostMapping("/signin")
+    public AuthResponse authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+        AuthResponse authResponse = new AuthResponse();
+        if (authentication.isAuthenticated()) {
+            authResponse.setEmail(authResponse.getEmail());
+            authResponse.setToken(jwtService.generateToken(authRequest.getEmail()));
+            if(authResponse.getToken() != null){
+                authResponse.setName(jwtService.extractUsername(authResponse.getToken()));
+            }
+        } else {
+            authResponse.setMessage("invalid user request !");
+            throw new UsernameNotFoundException("invalid user request !");
+        }
+        return authResponse;
     }
 
     @GetMapping("/user/userProfile")
@@ -47,15 +75,7 @@ public class UserController {
         return "Welcome to Admin Profile";
     }
 
-    @PostMapping("/generateToken")
-    public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(authRequest.getEmail());
-        } else {
-            throw new UsernameNotFoundException("invalid user request !");
-        }
-    }
+
 
 }
 

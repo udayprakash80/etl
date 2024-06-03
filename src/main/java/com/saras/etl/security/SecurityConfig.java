@@ -48,10 +48,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/welcome", "/auth/addNewUser", "/auth/generateToken", "/questions/search", "/questions/updateAll", "/questions/result").permitAll()
-//                        .requestMatchers("/auth/user/**", "/auth/admin/**").authenticated()
+                        .requestMatchers("/auth/welcome", "/auth/signin", "/auth/signup", "/questions/search", "/questions/result").permitAll()
+                        .requestMatchers("/questions/updateAll").authenticated()
                         .requestMatchers("/auth/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/auth/admin/**").hasAnyAuthority("USER"))
+                        .requestMatchers("/auth/user/**").hasAnyAuthority("USER"))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)

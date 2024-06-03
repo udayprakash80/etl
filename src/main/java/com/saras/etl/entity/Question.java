@@ -1,5 +1,6 @@
 package com.saras.etl.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,8 @@ public class Question implements Serializable {
     private String language;
     @Transient
     private String status;
+    @Transient
+    private boolean visited;
 
 
     public void setAnswers(List<Answer> answers){
