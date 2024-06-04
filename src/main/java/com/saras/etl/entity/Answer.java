@@ -1,6 +1,7 @@
 package com.saras.etl.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class Answer implements Serializable {
     @JsonIgnore
     private Question question;
 //    @JsonIgnore
+    @JsonView(Views.Admin.class)
     private boolean correct;
     private boolean option;
     @Transient

@@ -1,6 +1,11 @@
 package com.saras.etl.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.saras.etl.entity.Answer;
 import com.saras.etl.entity.Question;
+import com.saras.etl.entity.Views;
 import com.saras.etl.model.AssessmentResult;
 import com.saras.etl.security.SecurityConfig;
 import com.saras.etl.service.QuestionService;
@@ -37,8 +42,15 @@ public class QuestionController {
         return questionService.getQuestionById(id);
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/search")
-    public List<Question> getAllQuestionByLanguage(@RequestParam String language){
+    public List<Question> getAllQuestionByLanguage(@RequestParam String language) throws JsonProcessingException {
+        return questionService.getQuestionsByLanguage(language);
+    }
+
+    @JsonView(Views.Admin.class)
+    @GetMapping("/adminSearch")
+    public List<Question> getAdminAllQuestionByLanguage(@RequestParam String language) throws JsonProcessingException {
         return questionService.getQuestionsByLanguage(language);
     }
 
@@ -50,6 +62,11 @@ public class QuestionController {
     @PostMapping("/saveAll")
     public List<Question> saveAllQuestions(@RequestBody List<Question> questions){
         return questionService.saveAllQuestions(questions);
+    }
+
+    @GetMapping("/languageList")
+    public List<String> getAllLanguage(){
+        return questionService.getAllLanguage();
     }
 
     @PostMapping("/updateAll")

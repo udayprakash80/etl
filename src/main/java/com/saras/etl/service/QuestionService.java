@@ -1,7 +1,10 @@
 package com.saras.etl.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saras.etl.entity.Answer;
 import com.saras.etl.entity.Question;
+import com.saras.etl.entity.Views;
 import com.saras.etl.model.AssessmentResult;
 import com.saras.etl.repository.AnswerRepository;
 import com.saras.etl.repository.QuestionRepository;
@@ -31,7 +34,7 @@ public class QuestionService {
         return questionRepository.findById(id).orElse(null);
     }
 
-    public List<Question> getQuestionsByLanguage(String language){
+    public List<Question> getQuestionsByLanguage(String language) {
         return questionRepository.findByLanguage(language);
     }
     public Question saveQuestion(Question question){
@@ -131,6 +134,10 @@ public class QuestionService {
         }
         assessmentResult.setQuestions(questions);
         return assessmentResult;
+    }
+
+    public List<String> getAllLanguage(){
+        return questionRepository.findAllLanguage();
     }
 
 
