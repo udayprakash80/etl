@@ -2,13 +2,12 @@ package com.saras.etl.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.saras.etl.entity.Answer;
 import com.saras.etl.entity.Question;
 import com.saras.etl.entity.Views;
 import com.saras.etl.model.AssessmentResult;
-import com.saras.etl.security.SecurityConfig;
 import com.saras.etl.service.QuestionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/questions")
+@Tag(name="Question Controller", description = "API for Question")
 public class QuestionController {
-    public static final Logger LOG = LoggerFactory.getLogger(QuestionController.class);
+    public static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
     @Autowired
     private QuestionService questionService;
 
@@ -38,19 +38,21 @@ public class QuestionController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get question by ID")
     public Question getQuestionById(@PathVariable Long id){
         return questionService.getQuestionById(id);
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/search")
-    public List<Question> getAllQuestionByLanguage(@RequestParam String language) throws JsonProcessingException {
+    public List<Question> getAllQuestionByLanguage(@RequestParam String language) {
+        logger.info("Calling search api by language");
         return questionService.getQuestionsByLanguage(language);
     }
 
     @JsonView(Views.Admin.class)
     @GetMapping("/adminSearch")
-    public List<Question> getAdminAllQuestionByLanguage(@RequestParam String language) throws JsonProcessingException {
+    public List<Question> getAdminAllQuestionByLanguage(@RequestParam String language) {
         return questionService.getQuestionsByLanguage(language);
     }
 
@@ -86,7 +88,7 @@ public class QuestionController {
 
     @PostMapping("/result")
     public AssessmentResult getResult(@RequestBody List<Question> questions){
-        LOG.debug("Result submitted");
+        logger.debug("Result submitted");
         return questionService.getResult(questions);
     }
 

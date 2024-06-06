@@ -1,7 +1,5 @@
 package com.saras.etl.security;
 
-import com.saras.etl.security.exception.CustomAccessDeniedHandler;
-import com.saras.etl.security.exception.CustomAuthenticationFailureHandler;
 import com.saras.etl.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -21,8 +19,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -31,7 +27,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Slf4j
 public class SecurityConfig {
 
-    public static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+    public static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
+    private static final String[] WHITE_LIST_URL = { "/auth/welcome"
+            , "/auth/signin"
+            , "/auth/signup"
+            , "/questions/search"
+            , "/questions/result"
+            , "/questions/languageList"
+            , "/questions/updateAll"
+            , "/swagger-resources"
+            , "/swagger-resources/**"
+            , "/swagger-ui/**"
+            , "/swagger-ui.html"};
     @Autowired
     private JwtAuthFilter authFilter;
 
@@ -41,6 +49,7 @@ public class SecurityConfig {
         return new UserInfoService();
     }
 
+
     // Configuring HttpSecurity
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -48,11 +57,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/welcome", "/auth/signin", "/auth/signup", "/questions/search", "/questions/result", "/questions/languageList", "/questions/adminSearch", "/questions/updateAll").permitAll()
-//                        .requestMatchers("/questions/updateAll").authenticated()
+//                                .anyRequest().permitAll()
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers("/questions/adminSearch","/questions/updateAll").authenticated()
                         .requestMatchers("/auth/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/auth/user/**").hasAnyAuthority("USER"))
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .requestMatchers("/auth/user/**").hasAnyAuthority("USER")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .anyRequest()
+                        .authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -75,16 +89,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
-        return new CustomAccessDeniedHandler();
-    }
-
-    @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new CustomAuthenticationFailureHandler();
     }
 }
 
