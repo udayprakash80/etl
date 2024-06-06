@@ -13,6 +13,8 @@ model question {
   type          String
   level         String
   language      String
+  sequence      Int @default(autoincrement())
+  active        Boolean @default(false)
   answers       answer[]
 }
 
@@ -20,8 +22,9 @@ model answer {
   id                Int   @id @default(autoincrement())
   label             String
   option            Boolean
-  correct            Boolean
-  question_id        Int
+  correct           Boolean
+  sequence          Int @default(autoincrement())
+  question_id       Int
   question          question  @relation(fields: [question_id], references: [id])
 }
 

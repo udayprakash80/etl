@@ -26,7 +26,7 @@ public class Answer implements Serializable {
     @JsonView(Views.Admin.class)
     private boolean correct;
     private boolean option;
+    private int sequence;
     @Transient
     private boolean correctAnswer;
-
 }

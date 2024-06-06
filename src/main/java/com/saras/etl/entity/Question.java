@@ -23,6 +23,8 @@ public class Question implements Serializable {
     private String type;
     private String level;
     private String language;
+    private boolean active;
+    private Long sequence;
     @Transient
     private String status;
     @Transient
