@@ -45,19 +45,19 @@ public class QuestionController {
 
     @JsonView(Views.Public.class)
     @GetMapping("/search")
-    public List<Question> getAllQuestionByLanguage(@RequestParam String language) {
+    public List<Question> getAllQuestionByLanguage(@RequestParam String language, @RequestParam int limit) {
         logger.info("Calling search api by language");
-        return questionService.getQuestionsByLanguage(language);
+        return questionService.getQuestionsByLanguage(language, limit);
     }
 
     @JsonView(Views.Admin.class)
     @GetMapping("/adminSearch")
     public List<Question> getAdminAllQuestionByLanguage(@RequestParam String language) {
-        return questionService.getQuestionsByLanguage(language);
+        return questionService.getAllQuestionsByLanguage(language);
     }
 
-    @PostMapping
-    public Question saveQuestion(@RequestBody Question question){
+    @PostMapping("/save")
+    public List<Question> saveQuestion(@RequestBody Question question){
         return questionService.saveQuestion(question);
     }
 

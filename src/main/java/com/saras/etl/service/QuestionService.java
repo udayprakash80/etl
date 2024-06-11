@@ -9,12 +9,14 @@ import com.saras.etl.model.AssessmentResult;
 import com.saras.etl.repository.AnswerRepository;
 import com.saras.etl.repository.QuestionRepository;
 import com.saras.etl.utility.AssessmentMath;
+import com.saras.etl.utility.AssessmentUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -34,11 +36,18 @@ public class QuestionService {
         return questionRepository.findById(id).orElse(null);
     }
 
-    public List<Question> getQuestionsByLanguage(String language) {
+    public List<Question> getAllQuestionsByLanguage(String language) {
         return questionRepository.findByLanguage(language);
     }
-    public Question saveQuestion(Question question){
-        return questionRepository.save(question);
+
+    public List<Question> getQuestionsByLanguage(String language, int limit) {
+        return AssessmentUtility.getRandomValuesAsList(questionRepository.findByLanguage(language), limit);
+    }
+    public List<Question> saveQuestion(Question question){
+        List<Question> questions = questionRepository.findByLanguage(question.getLanguage());
+        question.setSequence((long) (questions.size()+1));
+        question = questionRepository.save(question);
+        return questionRepository.findByLanguage(question.getLanguage());
     }
 
     public List<Question> saveAllQuestions(List<Question> questions){
@@ -139,6 +148,8 @@ public class QuestionService {
     public List<String> getAllLanguage(){
         return questionRepository.findAllLanguage();
     }
+
+
 
 
 }
